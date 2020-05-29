@@ -12,7 +12,7 @@ void main() {
     var awsAccessKey = Platform.environment['AWS_ACCESS_KEY'];
 
     var messageFrom = Platform.environment['MESSAGE_FROM'] ?? 'PipDevs';
-    var messageTo = Platform.environment['MESSAGE_TO'];
+    var messageTo = Platform.environment['MESSAGE_TO'] ?? '+380509590743';
 
     setUp(() async {
       controller = SmsController();

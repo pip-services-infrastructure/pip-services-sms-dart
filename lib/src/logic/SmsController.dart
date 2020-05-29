@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:aws_sns_api/sns-2010-03-31.dart';
+import 'package:shared_aws_api/shared.dart' as _s;
 import 'package:mustache4dart2/mustache4dart2.dart';
 import 'package:pip_services3_commons/pip_services3_commons.dart';
 import 'package:pip_services3_components/pip_services3_components.dart';
@@ -163,13 +165,13 @@ class SmsController
 
     var text = renderTemplate(message.text, parameters);
 
-    var attr = <String, MessageAttributeValue>{
-      'AWS.SNS.SMS.SenderID': MessageAttributeValue(
+    var attr = <String, MessageAttributeValueEx>{
+      'AWS.SNS.SMS.SenderID': MessageAttributeValueEx(
           dataType: 'String', stringValue: message.from ?? _messageFrom),
-      'AWS.SNS.SMS.MaxPrice': MessageAttributeValue(
+      'AWS.SNS.SMS.MaxPrice': MessageAttributeValueEx(
           dataType: 'Number', stringValue: _maxPrice.toString()),
       'AWS.SNS.SMS.SMSType':
-          MessageAttributeValue(dataType: 'String', stringValue: _smsType)
+          MessageAttributeValueEx(dataType: 'String', stringValue: _smsType)
     };
     try {
       await sns.publish(
@@ -178,6 +180,9 @@ class SmsController
           messageStructure: 'String',
           messageAttributes: attr);
     } on Exception catch (ex) {
+      // debug
+       print(ex);
+
       _logger.error(correlationId, ex, 'Message not sent');
     }
   }
@@ -209,13 +214,13 @@ class SmsController
       var recLanguage = recipient.language;
       var text = renderTemplate(message.text, recParams, recLanguage);
 
-      var attr = <String, MessageAttributeValue>{
-        'AWS.SNS.SMS.SenderID': MessageAttributeValue(
+      var attr = <String, MessageAttributeValueEx>{
+        'AWS.SNS.SMS.SenderID': MessageAttributeValueEx(
             dataType: 'String', stringValue: message.from ?? _messageFrom),
-        'AWS.SNS.SMS.MaxPrice': MessageAttributeValue(
+        'AWS.SNS.SMS.MaxPrice': MessageAttributeValueEx(
             dataType: 'Number', stringValue: _maxPrice.toString()),
         'AWS.SNS.SMS.SMSType':
-            MessageAttributeValue(dataType: 'String', stringValue: _smsType)
+            MessageAttributeValueEx(dataType: 'String', stringValue: _smsType)
       };
 
       await sns.publish(
@@ -256,5 +261,25 @@ class SmsController
       await sendMessageToRecipient(
           correlationId, recipient, message, parameters);
     }
+  }
+}
+
+// TODO: Fix this after fix sns lib
+class MessageAttributeValueEx extends MessageAttributeValue {
+  MessageAttributeValueEx({
+    @_s.required String dataType,
+    Uint8List binaryValue,
+    String stringValue,
+  }): super(dataType:dataType,
+    binaryValue:binaryValue,
+    stringValue:stringValue);
+    
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      dataType: stringValue,
+      // 'binaryValue': binaryValue,
+      // 'stringValue': stringValue
+    };
   }
 }
