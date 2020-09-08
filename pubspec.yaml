@@ -16,7 +16,7 @@ dependencies:
   pip_services3_container: ">=1.0.0 <2.0.0"
   http: "^0.12.0"
 
-  aws_sns_api: ^0.0.5
+  aws_sns_api: ^0.1.1
   
   mustache4dart2: ^0.1.0
 

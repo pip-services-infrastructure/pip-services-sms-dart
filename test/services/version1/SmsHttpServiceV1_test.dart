@@ -1,17 +1,28 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:pip_services3_commons/pip_services3_commons.dart';
 import 'package:pip_services_sms/pip_services_sms.dart';
 import 'package:test/test.dart';
 import 'package:http/http.dart' as http;
 
+var awsAccessId = Platform.environment['AWS_ACCESS_ID'];
+var awsAccessKey = Platform.environment['AWS_ACCESS_KEY'];
+
+var messageFrom = Platform.environment['MESSAGE_FROM'] ?? 'PipDevs';
 var httpConfig = ConfigParams.fromTuples([
   'connection.protocol',
   'http',
   'connection.host',
   'localhost',
   'connection.port',
-  3000
+  3000,
+  'message.from',
+  messageFrom,
+  'credential.access_id',
+  awsAccessId,
+  'credential.access_key',
+  awsAccessKey
 ]);
 
 void main() {
@@ -27,7 +38,7 @@ void main() {
 
       var controller = SmsController();
 
-      controller.configure(ConfigParams());
+      controller.configure(httpConfig);
 
       service = SmsHttpServiceV1();
       service.configure(httpConfig);

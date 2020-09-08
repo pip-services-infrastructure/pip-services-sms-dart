@@ -107,10 +107,12 @@ class SmsController
       _credential = null;
     }
 
-    final credentials = AwsClientCredentials(
+    // var credentials = AwsClientCredentials(
+    //     accessKey: _credential.getAccessId(),
+    //     secretKey: _credential.getAccessKey());
+    sns = SNS(region: 'eu-west-1', credentials: AwsClientCredentials(
         accessKey: _credential.getAccessId(),
-        secretKey: _credential.getAccessKey());
-    sns = SNS(region: 'eu-west-1', credentials: credentials);
+        secretKey: _credential.getAccessKey()));
 
     _opened = true;
     _logger.debug(correlationId, 'Connected to AWS SNS');
@@ -165,13 +167,13 @@ class SmsController
 
     var text = renderTemplate(message.text, parameters);
 
-    var attr = <String, MessageAttributeValueEx>{
-      'AWS.SNS.SMS.SenderID': MessageAttributeValueEx(
+    var attr = <String, MessageAttributeValue>{
+      'AWS.SNS.SMS.SenderID': MessageAttributeValue(
           dataType: 'String', stringValue: message.from ?? _messageFrom),
-      'AWS.SNS.SMS.MaxPrice': MessageAttributeValueEx(
+      'AWS.SNS.SMS.MaxPrice': MessageAttributeValue(
           dataType: 'Number', stringValue: _maxPrice.toString()),
       'AWS.SNS.SMS.SMSType':
-          MessageAttributeValueEx(dataType: 'String', stringValue: _smsType)
+          MessageAttributeValue(dataType: 'String', stringValue: _smsType)
     };
     try {
       await sns.publish(
@@ -214,13 +216,13 @@ class SmsController
       var recLanguage = recipient.language;
       var text = renderTemplate(message.text, recParams, recLanguage);
 
-      var attr = <String, MessageAttributeValueEx>{
-        'AWS.SNS.SMS.SenderID': MessageAttributeValueEx(
+      var attr = <String, MessageAttributeValue>{
+        'AWS.SNS.SMS.SenderID': MessageAttributeValue(
             dataType: 'String', stringValue: message.from ?? _messageFrom),
-        'AWS.SNS.SMS.MaxPrice': MessageAttributeValueEx(
+        'AWS.SNS.SMS.MaxPrice': MessageAttributeValue(
             dataType: 'Number', stringValue: _maxPrice.toString()),
         'AWS.SNS.SMS.SMSType':
-            MessageAttributeValueEx(dataType: 'String', stringValue: _smsType)
+            MessageAttributeValue(dataType: 'String', stringValue: _smsType)
       };
 
       await sns.publish(
@@ -265,21 +267,21 @@ class SmsController
 }
 
 // TODO: Fix this after fix sns lib
-class MessageAttributeValueEx extends MessageAttributeValue {
-  MessageAttributeValueEx({
-    @_s.required String dataType,
-    Uint8List binaryValue,
-    String stringValue,
-  }): super(dataType:dataType,
-    binaryValue:binaryValue,
-    stringValue:stringValue);
+// class MessageAttributeValueEx extends MessageAttributeValue {
+//   MessageAttributeValueEx({
+//     @_s.required String dataType,
+//     Uint8List binaryValue,
+//     String stringValue,
+//   }): super(dataType:dataType,
+//     binaryValue:binaryValue,
+//     stringValue:stringValue);
     
 
-  Map<String, dynamic> toJson() {
-    return <String, dynamic>{
-      dataType: stringValue,
-      // 'binaryValue': binaryValue,
-      // 'stringValue': stringValue
-    };
-  }
-}
+//   Map<String, dynamic> toJson() {
+//     return <String, dynamic>{
+//       dataType: stringValue,
+//       // 'binaryValue': binaryValue,
+//       // 'stringValue': stringValue
+//     };
+//   }
+// }
